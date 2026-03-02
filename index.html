@@ -113,13 +113,24 @@
     const doctores = [
       { id: 1, nombre: "Dra. Pérez" },
       { id: 2, nombre: "Dr. Gómez" },
-      { id: 3, nombre: "Dra. López" },
-      { id 4, nombre: "Dra. "}
+      { id: 3, nombre: "Dra. López" }
     ];
 
     const estudios = [
-      { id: 1, nombre: "Ecografía abdominal", precio: 25000, requisitos: "Ayuno 8 hs", Observacion: "hola" },
-      { id: 2, nombre: "Radiografía de tórax", precio: 18000, requisitos: "Sin preparación" }
+      {
+        id: 1,
+        nombre: "Ecografía abdominal",
+        precio: 25000,
+        requisitos: "Ayuno 8 hs",
+        observacion: "Traer estudios previos"
+      },
+      {
+        id: 2,
+        nombre: "Radiografía de tórax",
+        precio: 18000,
+        requisitos: "Sin preparación",
+        observacion: "Presentarse 10 min antes"
+      }
     ];
 
     const doctorEstudio = [
@@ -167,6 +178,7 @@
         <h3>${estudio.nombre}</h3>
         <p class="precio">💲 $${estudio.precio}</p>
         <p><strong>📋 Requisitos:</strong> ${estudio.requisitos}</p>
+        <p><strong>📝 Observación:</strong> ${estudio.observacion}</p>
         <p><strong>👩‍⚕️ Doctores que lo realizan:</strong></p>
         <ul>
           ${doctoresQueHacen.map(d => `<li>${d}</li>`).join("")}
@@ -179,4 +191,3 @@
 
 </body>
 </html>
-
