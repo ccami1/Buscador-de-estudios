@@ -3,55 +3,110 @@
 <head>
   <meta charset="UTF-8" />
   <title>Buscador de Estudios</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .card {
       max-width: 600px;
-      margin: 40px auto;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
     }
 
     input {
-      padding: 12px;
-      font-size: 18px;
       width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #dcdfe6;
       box-sizing: border-box;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 3px rgba(74,144,226,0.15);
+    }
+
+    #sugerencias {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .sugerencia-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      background: white;
+    }
+
+    .sugerencia-item:hover {
+      background: #f1f5f9;
     }
 
     .resultado {
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
     }
 
-    #sugerencias div:hover {
-      background: #f2f2f2;
+    .precio {
+      font-size: 20px;
+      font-weight: bold;
+      color: #16a34a;
+    }
+
+    ul {
+      padding-left: 20px;
     }
 
     @media (max-width: 600px) {
       body {
-        margin: 15px;
-        font-size: 18px;
+        padding: 12px;
       }
     }
   </style>
 </head>
 <body>
 
-  <h2>🔍 Buscador de Estudios</h2>
+  <div class="card">
+    <h2>🔍 Buscador de Estudios</h2>
 
-  <label>Escribí el estudio:</label>
+    <label>Escribí el estudio</label>
 
-  <input
-    type="text"
-    id="buscador"
-    placeholder="Ej: ecografía..."
-  />
+    <input
+      type="text"
+      id="buscador"
+      placeholder="Ej: ecografía abdominal..."
+    />
 
-  <div id="sugerencias" style="border:1px solid #ccc; border-radius:8px; margin-top:5px;"></div>
+    <div id="sugerencias"></div>
 
-  <div id="resultado" class="resultado" style="display:none;"></div>
+    <div id="resultado" class="resultado" style="display:none;"></div>
+  </div>
 
   <script>
     // ====== DATOS ======
@@ -76,7 +131,7 @@
     const sugerencias = document.getElementById("sugerencias");
     const resultadoDiv = document.getElementById("resultado");
 
-    // ====== BUSCAR MIENTRAS ESCRIBE ======
+    // ====== BUSCAR ======
     buscador.addEventListener("input", () => {
       const texto = buscador.value.toLowerCase();
       sugerencias.innerHTML = "";
@@ -90,22 +145,18 @@
       filtrados.forEach(estudio => {
         const item = document.createElement("div");
         item.textContent = estudio.nombre;
-        item.style.padding = "8px";
-        item.style.cursor = "pointer";
-
+        item.className = "sugerencia-item";
         item.onclick = () => mostrarResultado(estudio.id);
-
         sugerencias.appendChild(item);
       });
     });
 
-    // ====== MOSTRAR RESULTADO ======
+    // ====== RESULTADO ======
     function mostrarResultado(estudioId) {
       sugerencias.innerHTML = "";
       buscador.value = "";
 
       const estudio = estudios.find(e => e.id === estudioId);
-
       const relaciones = doctorEstudio.filter(r => r.estudioId === estudioId);
       const doctoresQueHacen = relaciones.map(r =>
         doctores.find(d => d.id === r.doctorId).nombre
@@ -113,7 +164,7 @@
 
       resultadoDiv.innerHTML = `
         <h3>${estudio.nombre}</h3>
-        <p><strong>💲 Precio:</strong> $${estudio.precio}</p>
+        <p class="precio">💲 $${estudio.precio}</p>
         <p><strong>📋 Requisitos:</strong> ${estudio.requisitos}</p>
         <p><strong>👩‍⚕️ Doctores que lo realizan:</strong></p>
         <ul>
