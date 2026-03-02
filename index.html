@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Buscador de Estudios</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+    }
+
+    input {
+      padding: 12px;
+      font-size: 18px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .resultado {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    #sugerencias div:hover {
+      background: #f2f2f2;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        margin: 15px;
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🔍 Buscador de Estudios</h2>
+
+  <label>Escribí el estudio:</label>
+
+  <input
+    type="text"
+    id="buscador"
+    placeholder="Ej: ecografía..."
+  />
+
+  <div id="sugerencias" style="border:1px solid #ccc; border-radius:8px; margin-top:5px;"></div>
+
+  <div id="resultado" class="resultado" style="display:none;"></div>
+
+  <script>
+    // ====== DATOS ======
+    const doctores = [
+      { id: 1, nombre: "Dra. Pérez" },
+      { id: 2, nombre: "Dr. Gómez" },
+      { id: 3, nombre: "Dra. López" }
+    ];
+
+    const estudios = [
+      { id: 1, nombre: "Ecografía abdominal", precio: 25000, requisitos: "Ayuno 8 hs" },
+      { id: 2, nombre: "Radiografía de tórax", precio: 18000, requisitos: "Sin preparación" }
+    ];
+
+    const doctorEstudio = [
+      { doctorId: 1, estudioId: 1 },
+      { doctorId: 2, estudioId: 1 },
+      { doctorId: 3, estudioId: 2 }
+    ];
+
+    const buscador = document.getElementById("buscador");
+    const sugerencias = document.getElementById("sugerencias");
+    const resultadoDiv = document.getElementById("resultado");
+
+    // ====== BUSCAR MIENTRAS ESCRIBE ======
+    buscador.addEventListener("input", () => {
+      const texto = buscador.value.toLowerCase();
+      sugerencias.innerHTML = "";
+
+      if (!texto) return;
+
+      const filtrados = estudios.filter(e =>
+        e.nombre.toLowerCase().includes(texto)
+      );
+
+      filtrados.forEach(estudio => {
+        const item = document.createElement("div");
+        item.textContent = estudio.nombre;
+        item.style.padding = "8px";
+        item.style.cursor = "pointer";
+
+        item.onclick = () => mostrarResultado(estudio.id);
+
+        sugerencias.appendChild(item);
+      });
+    });
+
+    // ====== MOSTRAR RESULTADO ======
+    function mostrarResultado(estudioId) {
+      sugerencias.innerHTML = "";
+      buscador.value = "";
+
+      const estudio = estudios.find(e => e.id === estudioId);
+
+      const relaciones = doctorEstudio.filter(r => r.estudioId === estudioId);
+      const doctoresQueHacen = relaciones.map(r =>
+        doctores.find(d => d.id === r.doctorId).nombre
+      );
+
+      resultadoDiv.innerHTML = `
+        <h3>${estudio.nombre}</h3>
+        <p><strong>💲 Precio:</strong> $${estudio.precio}</p>
+        <p><strong>📋 Requisitos:</strong> ${estudio.requisitos}</p>
+        <p><strong>👩‍⚕️ Doctores que lo realizan:</strong></p>
+        <ul>
+          ${doctoresQueHacen.map(d => `<li>${d}</li>`).join("")}
+        </ul>
+      `;
+
+      resultadoDiv.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>
