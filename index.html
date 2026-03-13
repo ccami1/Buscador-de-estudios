@@ -1,1 +1,252 @@
-<!DOCTYPE html> <html lang="es"> <head> <meta charset="UTF-8"> <title>Buscador de Estudios</title> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style> body{ font-family: Arial, sans-serif; background:#f4f6f9; padding:20px; } .card{ max-width:600px; margin:auto; background:white; padding:25px; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.08); } input{ width:100%; padding:12px; font-size:16px; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; } .sugerencia-item{ padding:10px; cursor:pointer; border-bottom:1px solid #eee; } .sugerencia-item:hover{ background:#f2f2f2; } .resultado{ margin-top:20px; padding:15px; border-radius:10px; background:#f8fafc; border:1px solid #ddd; } .precio{ font-size:20px; font-weight:bold; color:green; } button{ margin-top:10px; margin-right:5px; padding:10px 14px; border-radius:8px; border:none; background:#4a90e2; color:white; font-size:15px; cursor:pointer; } button:hover{ background:#3b7cc4; } </style> </head> <body> <div class="card"> <h2>🔎 Buscador de Estudios</h2> <input type="text" id="buscador" placeholder="Escribí el estudio..." > <div id="sugerencias"></div> <div id="resultado" class="resultado" style="display:none;"></div> </div> <script> const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSR84loAVfquMi506ddNE3Aoj5NHhfcawHja5x2ebgSWpLVOx23AJtlMODa9PSEFCen7OSTCKQWYyud/pub?gid=0&single=true&output=csv"; let estudios = []; const buscador = document.getElementById("buscador"); const sugerencias = document.getElementById("sugerencias"); const resultadoDiv = document.getElementById("resultado"); // LIMPIAR TEXTO (quita acentos) function limpiarTexto(texto){ return texto .toLowerCase() .normalize("NFD") .replace(/[\u0300-\u036f]/g,""); } // CARGAR ESTUDIOS DESDE GOOGLE SHEETS async function cargarEstudios(){ const res = await fetch(url); const texto = await res.text(); const filas = texto.split("\n").slice(1); estudios = filas.map(fila => { const col = fila.split(","); return { id: col[0], nombre: col[1], precio: col[2], requisitos: col[3], observacion: col[4], doctores: col[5], busqueda: limpiarTexto(col[1]) }; }); } cargarEstudios(); // BUSCADOR CON SUGERENCIAS buscador.addEventListener("input", function(){ const texto = buscador.value.trim(); sugerencias.innerHTML=""; if(texto.length===0){ resultadoDiv.style.display="none"; return; } const textoLimpio = limpiarTexto(texto); let filtrados = estudios.filter(e => e.busqueda.includes(textoLimpio) ); // ordenar resultados alfabéticamente filtrados.sort((a,b)=>a.nombre.localeCompare(b.nombre)); // mostrar máximo 6 filtrados = filtrados.slice(0,6); filtrados.forEach(estudio => { const item = document.createElement("div"); item.textContent = estudio.nombre; item.className="sugerencia-item"; item.onclick = function(){ mostrarResultado(estudio); }; sugerencias.appendChild(item); }); }); // COPIAR REQUISITOS function copiarRequisitos(estudio){ const texto = `Estudio: ${estudio.nombre} Requisitos: ${estudio.requisitos} Observación: ${estudio.observacion}`; navigator.clipboard.writeText(texto); alert("Requisitos copiados para WhatsApp"); } // MOSTRAR RESULTADO function mostrarResultado(estudio){ sugerencias.innerHTML=""; const listaDoctores = estudio.doctores.split("|"); resultadoDiv.innerHTML = ` <h3>${estudio.nombre}</h3> <p class="precio">💲 $${estudio.precio}</p> <p><strong>📋 Requisitos:</strong> ${estudio.requisitos}</p> <p><strong>📝 Observación:</strong> ${estudio.observacion}</p> <p><strong>👩‍⚕️ Doctores:</strong></p> <ul> ${listaDoctores.map(d => `<li>${d}</li>`).join("")} </ul> <button onclick='copiarRequisitos(${JSON.stringify(estudio)})'> 📋 Copiar requisitos </button> <button onclick="alert('Agenda próximamente')"> 📅 Agendar turno </button> `; resultadoDiv.style.display="block"; buscador.value=""; } </script> </body> </html>
+ html 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Buscador de Estudios</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+background:#f4f6f9;
+padding:20px;
+}
+
+.card{
+max-width:600px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
+
+input{
+width:100%;
+padding:12px;
+font-size:16px;
+border-radius:8px;
+border:1px solid #ccc;
+box-sizing:border-box;
+}
+
+.sugerencia-item{
+padding:10px;
+cursor:pointer;
+border-bottom:1px solid #eee;
+}
+
+.sugerencia-item:hover{
+background:#f2f2f2;
+}
+
+.resultado{
+margin-top:20px;
+padding:15px;
+border-radius:10px;
+background:#f8fafc;
+border:1px solid #ddd;
+}
+
+.precio{
+font-size:20px;
+font-weight:bold;
+color:green;
+}
+
+button{
+margin-top:10px;
+margin-right:5px;
+padding:10px 14px;
+border-radius:8px;
+border:none;
+background:#4a90e2;
+color:white;
+font-size:15px;
+cursor:pointer;
+}
+
+button:hover{
+background:#3b7cc4;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>🔎 Buscador de Estudios</h2>
+
+<input
+type="text"
+id="buscador"
+placeholder="Escribí el estudio..."
+>
+
+<div id="sugerencias"></div>
+
+<div id="resultado" class="resultado" style="display:none;"></div>
+
+</div>
+
+<script>
+
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSR84loAVfquMi506ddNE3Aoj5NHhfcawHja5x2ebgSWpLVOx23AJtlMODa9PSEFCen7OSTCKQWYyud/pub?gid=0&single=true&output=csv";
+
+let estudios = [];
+
+const buscador = document.getElementById("buscador");
+const sugerencias = document.getElementById("sugerencias");
+const resultadoDiv = document.getElementById("resultado");
+
+
+// LIMPIAR TEXTO (quita acentos)
+function limpiarTexto(texto){
+
+return texto
+.toLowerCase()
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"");
+
+}
+
+
+// CARGAR ESTUDIOS DESDE GOOGLE SHEETS
+async function cargarEstudios(){
+
+const res = await fetch(url);
+const texto = await res.text();
+
+const filas = texto.split("\n").slice(1);
+
+estudios = filas.map(fila => {
+
+const col = fila.split(",");
+
+return {
+id: col[0],
+nombre: col[1],
+precio: col[2],
+requisitos: col[3],
+observacion: col[4],
+doctores: col[5],
+busqueda: limpiarTexto(col[1])
+};
+
+});
+
+}
+
+cargarEstudios();
+
+
+// BUSCADOR CON SUGERENCIAS
+buscador.addEventListener("input", function(){
+
+const texto = buscador.value.trim();
+
+sugerencias.innerHTML="";
+
+if(texto.length===0){
+resultadoDiv.style.display="none";
+return;
+}
+
+const textoLimpio = limpiarTexto(texto);
+
+let filtrados = estudios.filter(e =>
+e.busqueda.includes(textoLimpio)
+);
+
+// ordenar resultados alfabéticamente
+filtrados.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+
+// mostrar máximo 6
+filtrados = filtrados.slice(0,6);
+
+filtrados.forEach(estudio => {
+
+const item = document.createElement("div");
+
+item.textContent = estudio.nombre;
+
+item.className="sugerencia-item";
+
+item.onclick = function(){
+mostrarResultado(estudio);
+};
+
+sugerencias.appendChild(item);
+
+});
+
+});
+
+
+// COPIAR REQUISITOS
+function copiarRequisitos(estudio){
+
+const texto =
+`Estudio: ${estudio.nombre}
+
+Requisitos:
+${estudio.requisitos}
+
+Observación:
+${estudio.observacion}`;
+
+navigator.clipboard.writeText(texto);
+
+alert("Requisitos copiados para WhatsApp");
+
+}
+
+
+// MOSTRAR RESULTADO
+function mostrarResultado(estudio){
+
+sugerencias.innerHTML="";
+
+const listaDoctores = estudio.doctores.split("|");
+
+resultadoDiv.innerHTML = `
+
+<h3>${estudio.nombre}</h3>
+
+<p class="precio">💲 $${estudio.precio}</p>
+
+<p><strong>📋 Requisitos:</strong> ${estudio.requisitos}</p>
+
+<p><strong>📝 Observación:</strong> ${estudio.observacion}</p>
+
+<p><strong>👩‍⚕️ Doctores:</strong></p>
+
+<ul>
+${listaDoctores.map(d => `<li>${d}</li>`).join("")}
+</ul>
+
+<button onclick='copiarRequisitos(${JSON.stringify(estudio)})'>
+📋 Copiar requisitos
+</button>
+
+<button onclick="alert('Agenda próximamente')">
+📅 Agendar turno
+</button>
+
+`;
+
+resultadoDiv.style.display="block";
+
+buscador.value="";
+
+}
+
+</script>
+
+</body>
+</html>
