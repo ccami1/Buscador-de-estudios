@@ -1,193 +1,100 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Buscador de Estudios</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<title>Buscador de Estudios</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 20px;
-    }
+<style>
 
-    .card {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 25px;
-      border-radius: 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-    }
+body{
+font-family: Arial, sans-serif;
+background:#f4f6f9;
+padding:20px;
+}
 
-    h2 {
-      margin-top: 0;
-      color: #2c3e50;
-    }
+.card{
+max-width:600px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+}
 
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 8px;
-    }
+input{
+width:100%;
+padding:12px;
+font-size:16px;
+border-radius:8px;
+border:1px solid #ccc;
+box-sizing:border-box;
+}
 
-    input {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: 1px solid #dcdfe6;
-      box-sizing: border-box;
-      outline: none;
-    }
+.sugerencia-item{
+padding:10px;
+cursor:pointer;
+border-bottom:1px solid #eee;
+}
 
-    input:focus {
-      border-color: #4a90e2;
-      box-shadow: 0 0 0 3px rgba(74,144,226,0.15);
-    }
+.sugerencia-item:hover{
+background:#f2f2f2;
+}
 
-    #sugerencias {
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      margin-top: 6px;
-      overflow: hidden;
-    }
+.resultado{
+margin-top:20px;
+padding:15px;
+border-radius:10px;
+background:#f8fafc;
+border:1px solid #ddd;
+}
 
-    .sugerencia-item {
-      padding: 10px 14px;
-      cursor: pointer;
-      background: white;
-    }
+.precio{
+font-size:20px;
+font-weight:bold;
+color:green;
+}
 
-    .sugerencia-item:hover {
-      background: #f1f5f9;
-    }
+button{
+margin-top:10px;
+margin-right:5px;
+padding:10px 14px;
+border-radius:8px;
+border:none;
+background:#4a90e2;
+color:white;
+font-size:15px;
+cursor:pointer;
+}
 
-    .resultado {
-      margin-top: 22px;
-      padding: 18px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-    }
+button:hover{
+background:#3b7cc4;
+}
 
-    .precio {
-      font-size: 20px;
-      font-weight: bold;
-      color: #16a34a;
-    }
+</style>
 
-    ul {
-      padding-left: 20px;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 12px;
-      }
-    }
-  </style>
 </head>
+
 <body>
 
-  <div class="card">
-    <h2>🔍 Buscador de Estudios</h2>
+<div class="card">
 
-    <label>Escribí el estudio</label>
+<h2>🔎 Buscador de Estudios</h2>
 
-    <input
-      type="text"
-      id="buscador"
-      placeholder="Ej: ecografía abdominal..."
-    />
+<input
+type="text"
+id="buscador"
+placeholder="Escribí el estudio..."
+>
 
-    <div id="sugerencias"></div>
+<div id="sugerencias"></div>
 
-    <div id="resultado" class="resultado" style="display:none;"></div>
-  </div>
+<div id="resultado" class="resultado" style="display:none;"></div>
 
-  <script>
-    // ====== DATOS ======
-    const doctores = [
-      { id: 1, nombre: "Dra. Pérez" },
-      { id: 2, nombre: "Dr. Gómez" },
-      { id: 3, nombre: "Dra. López" }
-    ];
+</div>
 
-    const estudios = [
-      {
-        id: 1,
-        nombre: "Ecografía abdominal",
-        precio: 25000,
-        requisitos: "Ayuno 8 hs",
-        observacion: "Traer estudios previos"
-      },
-      {
-        id: 2,
-        nombre: "Radiografía de tórax",
-        precio: 18000,
-        requisitos: "Sin preparación",
-        observacion: "Presentarse 10 min antes"
-      }
-    ];
+<script>
 
-    const doctorEstudio = [
-      { doctorId: 1, estudioId: 1 },
-      { doctorId: 2, estudioId: 1 },
-      { doctorId: 3, estudioId: 2 }
-    ];
-
-    const buscador = document.getElementById("buscador");
-    const sugerencias = document.getElementById("sugerencias");
-    const resultadoDiv = document.getElementById("resultado");
-
-    // ====== BUSCAR ======
-    buscador.addEventListener("input", () => {
-      const texto = buscador.value.toLowerCase();
-      sugerencias.innerHTML = "";
-
-      if (!texto) return;
-
-      const filtrados = estudios.filter(e =>
-        e.nombre.toLowerCase().includes(texto)
-      );
-
-      filtrados.forEach(estudio => {
-        const item = document.createElement("div");
-        item.textContent = estudio.nombre;
-        item.className = "sugerencia-item";
-        item.onclick = () => mostrarResultado(estudio.id);
-        sugerencias.appendChild(item);
-      });
-    });
-
-    // ====== RESULTADO ======
-    function mostrarResultado(estudioId) {
-      sugerencias.innerHTML = "";
-      buscador.value = "";
-
-      const estudio = estudios.find(e => e.id === estudioId);
-      const relaciones = doctorEstudio.filter(r => r.estudioId === estudioId);
-      const doctoresQueHacen = relaciones.map(r =>
-        doctores.find(d => d.id === r.doctorId).nombre
-      );
-
-      resultadoDiv.innerHTML = `
-        <h3>${estudio.nombre}</h3>
-        <p class="precio">💲 $${estudio.precio}</p>
-        <p><strong>📋 Requisitos:</strong> ${estudio.requisitos}</p>
-        <p><strong>📝 Observación:</strong> ${estudio.observacion}</p>
-        <p><strong>👩‍⚕️ Doctores que lo realizan:</strong></p>
-        <ul>
-          ${doctoresQueHacen.map(d => `<li>${d}</li>`).join("")}
-        </ul>
-      `;
-
-      resultadoDiv.style.display = "block";
-    }
-  </script>
-
-</body>
-</html>
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSR84loAVfquMi506ddNE3Aoj5NHhfcawHja5x2ebgSWpLVOx23AJtlMODa9P
+```
