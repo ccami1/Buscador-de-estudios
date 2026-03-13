@@ -104,7 +104,7 @@ const sugerencias = document.getElementById("sugerencias");
 const resultadoDiv = document.getElementById("resultado");
 
 
-// LIMPIAR TEXTO (quita acentos)
+// limpiar texto (ignora acentos)
 function limpiarTexto(texto){
 
 return texto
@@ -115,7 +115,45 @@ return texto
 }
 
 
-// CARGAR ESTUDIOS DESDE GOOGLE SHEETS
+// leer CSV correctamente
+function parseCSV(text){
+
+const rows = text.trim().split(/\r?\n/);
+
+return rows.map(row => {
+
+const result=[];
+let current="";
+let insideQuotes=false;
+
+for(let i=0;i<row.length;i++){
+
+const char=row[i];
+
+if(char === '"'){
+insideQuotes=!insideQuotes;
+continue;
+}
+
+if(char === "," && !insideQuotes){
+result.push(current);
+current="";
+}else{
+current+=char;
+}
+
+}
+
+result.push(current);
+
+return result;
+
+});
+
+}
+
+
+// cargar estudios
 async function cargarEstudios(){
 
 try{
@@ -123,13 +161,13 @@ try{
 const res = await fetch(url);
 const texto = await res.text();
 
-const filas = texto.trim().split(/\r?\n/);
+const data = parseCSV(texto);
 
 estudios = [];
 
-for(let i=1;i<filas.length;i++){
+for(let i=1;i<data.length;i++){
 
-const col = filas[i].split(",");
+const col = data[i];
 
 estudios.push({
 id: col[0] || "",
@@ -147,7 +185,7 @@ console.log("Estudios cargados:", estudios.length);
 
 }catch(error){
 
-console.error("Error cargando datos", error);
+console.error("Error cargando estudios",error);
 
 }
 
@@ -156,7 +194,7 @@ console.error("Error cargando datos", error);
 cargarEstudios();
 
 
-// BUSCADOR CON SUGERENCIAS
+// buscador
 buscador.addEventListener("input", function(){
 
 const texto = buscador.value.trim();
@@ -174,10 +212,8 @@ let filtrados = estudios.filter(e =>
 e.busqueda.includes(textoLimpio)
 );
 
-// ordenar resultados alfabéticamente
 filtrados.sort((a,b)=>a.nombre.localeCompare(b.nombre));
 
-// mostrar máximo 6
 filtrados = filtrados.slice(0,6);
 
 filtrados.forEach(estudio => {
@@ -199,7 +235,7 @@ sugerencias.appendChild(item);
 });
 
 
-// COPIAR REQUISITOS
+// copiar requisitos
 function copiarRequisitos(estudio){
 
 const texto =
@@ -213,12 +249,12 @@ ${estudio.observacion}`;
 
 navigator.clipboard.writeText(texto);
 
-alert("Requisitos copiados para WhatsApp");
+alert("Requisitos copiados");
 
 }
 
 
-// MOSTRAR RESULTADO
+// mostrar resultado
 function mostrarResultado(estudio){
 
 sugerencias.innerHTML="";
@@ -243,10 +279,6 @@ ${listaDoctores.map(d => `<li>${d}</li>`).join("")}
 
 <button onclick='copiarRequisitos(${JSON.stringify(estudio)})'>
 📋 Copiar requisitos
-</button>
-
-<button onclick="alert('Agenda próximamente')">
-📅 Agendar turno
 </button>
 
 `;
