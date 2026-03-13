@@ -125,7 +125,7 @@ const filas = texto.split(/\r?\n/).slice(1);
  
 estudios = filas.map(fila => {
 
-const col = fila.split(",");
+const col = fila.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
 return {
 id: col[0],
