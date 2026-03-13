@@ -122,8 +122,8 @@ async function cargarEstudios(){
 const res = await fetch(url);
 const texto = await res.text();
 
-const filas = texto.split("\n").slice(1);
-
+const filas = texto.split(/\r?\n/).slice(1);
+ 
 estudios = filas.map(fila => {
 
 const col = fila.split(",");
@@ -135,7 +135,7 @@ precio: col[2],
 requisitos: col[3],
 observacion: col[4],
 doctores: col[5],
-busqueda: limpiarTexto(col[1])
+busqueda: limpiarTexto(col[1] || "")
 };
 
 });
